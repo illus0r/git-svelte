@@ -9173,8 +9173,8 @@ var Control = /*#__PURE__*/function (_SvelteComponentDev) {
 
 var _default = Control;
 exports.default = _default;
-},{"svelte/internal":"../node_modules/svelte/internal/index.mjs"}],"shader.frag":[function(require,module,exports) {
-module.exports = "precision mediump float;\n#define GLSLIFY 1\nvarying vec2 uv;\n\nuniform float r;\nuniform float g;\nuniform float b;\nuniform float radius;\n\nvoid main() {\n\tfloat col = step(radius,length(uv));\n\tgl_FragColor = (1.-col)*vec4(r, g, b, 1.);\n}\n";
+},{"svelte/internal":"../node_modules/svelte/internal/index.mjs"}],"openEye.frag":[function(require,module,exports) {
+module.exports = "precision mediump float;\n#define GLSLIFY 1\nvarying vec2 uv;\n\nuniform float threshold;\nuniform float time_;\nuniform float spotSeed;\nuniform float colorShift_;\nuniform float spotRadius;\nuniform float spotDetails;\nuniform float spotAmplitude;\nuniform float blur;\nuniform float TIME;\nuniform float width;\nuniform float height;\n\n#define pointsNumber 8\n\nfloat WaveletNoise(vec2 p, float z, float k) {\n    float d=0.,s=1.,m=0., a;\n    for(float i=0.; i<4.; i++) {\n        vec2 q = p*s, g=fract(floor(q)*vec2(123.34,233.53));\n    \tg += dot(g, g+23.234);\n\t\ta = fract(g.x*g.y)*1e3;// +z*(mod(g.x+g.y, 2.)-1.); // add vorticity\n        q = (fract(q)-.5)*mat2(cos(a),-sin(a),sin(a),cos(a));\n        d += sin(q.x*10.+z)*smoothstep(.25, .0, dot(q,q))/s;\n        p = p*mat2(.54,-.84, .84, .54)+i;\n        m += 1./s;\n        s *= k; \n    }\n    return d/m + 0.5;\n}\n\nvec3 colorShift = vec3(0., colorShift_, colorShift_ * 2.);\n\nfloat noise(float x, float y) {\n    return WaveletNoise(vec2(x, y), 1., 0.5);\n}\n\nstruct Point\n{\n  float mass;\n  vec3 posX; // for rgb\n  vec3 posY;\n};\n\nvoid main()\n{\n    // Point points[3] = Point[3](\n    //   Point(1.0,  vec2(-19.0, 4.5)),\n    //   Point(-3.0, vec2(2.718, 2.0)),\n    //   Point(29.5, vec2(3.142, 3.333))\n    // );\n\n    Point points[pointsNumber];\n    for (int i = 0; i < pointsNumber; i++) {\n        float mass = noise(\n            10. + 400. * float(i),\n            1.+ 800. + (time_ + TIME) * 0.1 + colorShift.b\n          );\n        mass -= 0.5;\n        vec3 cs = colorShift;\n        \n        vec3 posX; // for rgb\n        vec3 posY;\n        posX.r = noise(\n            10. + 100. * float(i),\n            1.+ 600. + (time_ + TIME) * 0.1 + cs.r\n        );\n        posY.r = noise(\n            1. + 400. * float(i),\n            10.+ 200. + (time_ + TIME) * 0.1 + cs.r\n        );\n        posX.g = noise(\n            10. + 100. * float(i),\n            1.+ 600. + (time_ + TIME) * 0.1 + cs.g\n        );\n        posY.g = noise(\n            1. + 400. * float(i),\n            10.+ 200. + (time_ + TIME) * 0.1 + cs.g\n        );\n        posX.b = noise(\n            10. + 100. * float(i),\n            1.+ 600. + (time_ + TIME) * 0.1 + cs.b\n        );\n        posY.b = noise(\n            1. + 400. * float(i),\n            10.+ 200. + (time_ + TIME) * 0.1 + cs.b\n          );\n          \n        points[i] = Point(mass * 100., posX, posY);\n    }\n\n    vec2 xy = uv;\n    xy *= vec2(width, height);\n\t\txy /= min(width,height);\n\t\txy += +1.;\n    xy /= 2.;\n    \n    vec3 field = vec3(0.);\n    for (int i = 0; i < pointsNumber; i++) {\n        field.r += 0.0001 * points[i].mass / \n            pow(distance(vec2(points[i].posX.r, points[i].posY.r), xy), 2.);\n        field.g += 0.0001 * points[i].mass / \n            pow(distance(vec2(points[i].posX.g, points[i].posY.g), xy), 2.);\n        field.b += 0.0001 * points[i].mass / \n            pow(distance(vec2(points[i].posX.b, points[i].posY.b), xy), 2.);\n    }\n    \n    // vec3 field = vec3(1.);\n    // for (int i = 0; i < pointsNumber; i++) {\n    //     field.r *= points[i].mass * 1. / distance(vec2(points[i].posX.r, points[i].posY.r), xy);\n    //     field.g *= points[i].mass * 1. / distance(vec2(points[i].posX.g, points[i].posY.g), xy);\n    //     field.b *= points[i].mass * 1. / distance(vec2(points[i].posX.b, points[i].posY.b), xy);\n    // }\n    \n    vec2 spotDistort;\n    spotDistort.x = WaveletNoise(xy + vec2(0., 100. + spotSeed), 1., spotDetails);\n    spotDistort.y = WaveletNoise(xy + vec2(100., 0. + spotSeed), 1., spotDetails);\n    spotDistort *= spotAmplitude;\n    float k = mix(1., -1., smoothstep(spotRadius - blur, spotRadius, distance(vec2(0.5), xy + spotDistort)));\n    field = field * k;\n\n    vec3 abberation = vec3(0., .01, .02);\n    vec3 color = vec3(smoothstep(threshold-blur, threshold+blur, vec3(field\n    )));\n    \n    // color = mix(color, 1. - color, smoothstep(spotRadius - blur, spotRadius, distance(vec2(0.5), xy)));\n\n    // if (distance(point1, xy) < 0.01) color = vec3(1., 0., 0.);\n    // if (distance(point2, xy) < 0.01) color = vec3(1., 0., 0.);\n    // if (distance(point3, xy) < 0.01) color = vec3(1., 0., 0.);\n    \n\tgl_FragColor = vec4(color, 1.);\n}\n\n";
 },{}],"../node_modules/regl/dist/regl.js":[function(require,module,exports) {
 var define;
 var global = arguments[3];
@@ -19743,7 +19743,7 @@ exports.default = void 0;
 
 var _internal = require("svelte/internal");
 
-var _shader = _interopRequireDefault(require("./shader.frag"));
+var _openEye = _interopRequireDefault(require("./openEye.frag"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19784,7 +19784,7 @@ function create_fragment(ctx) {
       canvas = (0, _internal.element)("canvas");
       (0, _internal.attr_dev)(canvas, "id", "canvas-main");
       (0, _internal.attr_dev)(canvas, "class", "svelte-zcnnn5");
-      (0, _internal.add_location)(canvas, file, 74, 0, 1231);
+      (0, _internal.add_location)(canvas, file, 74, 0, 1230);
     },
     l: function claim(nodes) {
       throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -19837,7 +19837,7 @@ function instance($$self, $$props, $$invalidate) {
     });
 
     var setupQuad = regl({
-      frag: _shader.default,
+      frag: _openEye.default,
       vert: "precision mediump float;attribute vec2 position;varying vec2 uv;void main() {uv=position;gl_Position = vec4(position, 0, 1);}",
       attributes: {
         position: [-4, -4, 4, -4, 0, 4]
@@ -19871,7 +19871,7 @@ function instance($$self, $$props, $$invalidate) {
 
   $$self.$capture_state = function () {
     return {
-      shaderFrag: _shader.default,
+      shaderFrag: _openEye.default,
       controlsArray: controlsArray,
       controlUniforms: controlUniforms,
       saveImageButtonObj: saveImageButtonObj
@@ -19893,7 +19893,7 @@ function instance($$self, $$props, $$invalidate) {
     /*controlsArray*/
     1) {
       $: controlsArray.forEach(function (d) {
-        controlUniforms[d.name] = function () {
+        controlUniforms[d.id] = function () {
           return d.value;
         };
       });
@@ -19941,7 +19941,7 @@ var Shader = /*#__PURE__*/function (_SvelteComponentDev) {
 
 var _default = Shader;
 exports.default = _default;
-},{"svelte/internal":"../node_modules/svelte/internal/index.mjs","./shader.frag":"shader.frag","regl":"../node_modules/regl/dist/regl.js","_css_loader":"../node_modules/parcel-bundler/src/builtins/css-loader.js"}],"App.svelte":[function(require,module,exports) {
+},{"svelte/internal":"../node_modules/svelte/internal/index.mjs","./openEye.frag":"openEye.frag","regl":"../node_modules/regl/dist/regl.js","_css_loader":"../node_modules/parcel-bundler/src/builtins/css-loader.js"}],"App.svelte":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19995,7 +19995,7 @@ function get_each_context(ctx, list, i) {
   child_ctx[3] = list;
   child_ctx[4] = i;
   return child_ctx;
-} // (25:0) {#each controlsArray as c}
+} // (34:0) {#each controlsArray as c}
 
 
 function create_each_block(ctx) {
@@ -20081,7 +20081,7 @@ function create_each_block(ctx) {
     block: block,
     id: create_each_block.name,
     type: "each",
-    source: "(25:0) {#each controlsArray as c}",
+    source: "(34:0) {#each controlsArray as c}",
     ctx: ctx
   });
   return block;
@@ -20126,8 +20126,8 @@ function create_fragment(ctx) {
         each_blocks[_i].c();
       }
 
-      (0, _internal.attr_dev)(div, "class", "control-panel");
-      (0, _internal.add_location)(div, file, 22, 0, 355);
+      (0, _internal.attr_dev)(div, "class", "control-panel svelte-925nyu");
+      (0, _internal.add_location)(div, file, 31, 0, 685);
     },
     l: function claim(nodes) {
       throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -20235,17 +20235,37 @@ function instance($$self, $$props, $$invalidate) {
       $$scope = $$props.$$scope;
   (0, _internal.validate_slots)("App", slots, []);
   var controlsArray = [{
-    name: "r",
-    value: 1
-  }, {
-    name: "g",
+    name: "Lightness threshold",
+    id: "threshold",
     value: 0
   }, {
-    name: "b",
+    name: "Color shift",
+    id: "colorShift_",
+    value: 0.02
+  }, {
+    name: "Spot seed",
+    id: "spotSeed",
     value: 0
   }, {
-    name: "radius",
+    name: "Spot radius",
+    id: "spotRadius",
     value: 0.5
+  }, {
+    name: "Spot details",
+    id: "spotDetails",
+    value: 0.5
+  }, {
+    name: "Spot amplitude",
+    id: "spotAmplitude",
+    value: 0.5
+  }, {
+    name: "Blur",
+    id: "blur",
+    value: 0.1
+  }, {
+    name: "Time",
+    id: "time_",
+    value: 0
   }];
   var writable_props = [];
   Object.keys($$props).forEach(function (key) {
@@ -20603,7 +20623,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51033" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52816" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
