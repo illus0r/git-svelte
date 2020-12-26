@@ -8934,11 +8934,11 @@ function create_fragment(ctx) {
       if (!mounted) {
         dispose = [(0, _internal.listen_dev)(input0, "input",
         /*input0_input_handler*/
-        ctx[6]), (0, _internal.listen_dev)(input1, "change",
+        ctx[5]), (0, _internal.listen_dev)(input1, "change",
         /*input1_change_input_handler*/
-        ctx[7]), (0, _internal.listen_dev)(input1, "input",
+        ctx[6]), (0, _internal.listen_dev)(input1, "input",
         /*input1_change_input_handler*/
-        ctx[7])];
+        ctx[6])];
         mounted = true;
       }
     },
@@ -9041,7 +9041,6 @@ function instance($$self, $$props, $$invalidate) {
       slots = _$$props$$$slots === void 0 ? {} : _$$props$$$slots,
       $$scope = $$props.$$scope;
   (0, _internal.validate_slots)("Control", slots, []);
-  var cc = $$props.cc;
   var _$$props$name = $$props.name,
       name = _$$props$name === void 0 ? "Control" : _$$props$name;
   var _$$props$min = $$props.min,
@@ -9052,7 +9051,7 @@ function instance($$self, $$props, $$invalidate) {
       max = _$$props$max === void 0 ? 1 : _$$props$max;
   var _$$props$step = $$props.step,
       step = _$$props$step === void 0 ? (max - min) / 100 : _$$props$step;
-  var writable_props = ["cc", "name", "min", "value", "max", "step"];
+  var writable_props = ["name", "min", "value", "max", "step"];
   Object.keys($$props).forEach(function (key) {
     if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn("<Control> was created with unknown prop '".concat(key, "'"));
   });
@@ -9068,7 +9067,6 @@ function instance($$self, $$props, $$invalidate) {
   }
 
   $$self.$$set = function ($$props) {
-    if ("cc" in $$props) $$invalidate(5, cc = $$props.cc);
     if ("name" in $$props) $$invalidate(1, name = $$props.name);
     if ("min" in $$props) $$invalidate(2, min = $$props.min);
     if ("value" in $$props) $$invalidate(0, value = $$props.value);
@@ -9078,7 +9076,6 @@ function instance($$self, $$props, $$invalidate) {
 
   $$self.$capture_state = function () {
     return {
-      cc: cc,
       name: name,
       min: min,
       value: value,
@@ -9088,7 +9085,6 @@ function instance($$self, $$props, $$invalidate) {
   };
 
   $$self.$inject_state = function ($$props) {
-    if ("cc" in $$props) $$invalidate(5, cc = $$props.cc);
     if ("name" in $$props) $$invalidate(1, name = $$props.name);
     if ("min" in $$props) $$invalidate(2, min = $$props.min);
     if ("value" in $$props) $$invalidate(0, value = $$props.value);
@@ -9100,7 +9096,7 @@ function instance($$self, $$props, $$invalidate) {
     $$self.$inject_state($$props.$$inject);
   }
 
-  return [value, name, min, max, step, cc, input0_input_handler, input1_change_input_handler];
+  return [value, name, min, max, step, input0_input_handler, input1_change_input_handler];
 }
 
 var Control = /*#__PURE__*/function (_SvelteComponentDev) {
@@ -9115,7 +9111,6 @@ var Control = /*#__PURE__*/function (_SvelteComponentDev) {
 
     _this = _super.call(this, options);
     (0, _internal.init)(_assertThisInitialized(_this), options, instance, create_fragment, _internal.safe_not_equal, {
-      cc: 5,
       name: 1,
       min: 2,
       value: 0,
@@ -9128,27 +9123,10 @@ var Control = /*#__PURE__*/function (_SvelteComponentDev) {
       options: options,
       id: create_fragment.name
     });
-    var ctx = _this.$$.ctx;
-    var props = options.props || {};
-
-    if (
-    /*cc*/
-    ctx[5] === undefined && !("cc" in props)) {
-      console.warn("<Control> was created without expected prop 'cc'");
-    }
-
     return _this;
   }
 
   _createClass(Control, [{
-    key: "cc",
-    get: function get() {
-      throw new Error("<Control>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    },
-    set: function set(value) {
-      throw new Error("<Control>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    }
-  }, {
     key: "name",
     get: function get() {
       throw new Error("<Control>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
@@ -9196,7 +9174,7 @@ var Control = /*#__PURE__*/function (_SvelteComponentDev) {
 var _default = Control;
 exports.default = _default;
 },{"svelte/internal":"../node_modules/svelte/internal/index.mjs"}],"shader.frag":[function(require,module,exports) {
-module.exports = "precision mediump float;\n#define GLSLIFY 1\nvarying vec2 uv;\nuniform float r;\nuniform float g;\nuniform float b;\n\nvoid main() {\n\tgl_FragColor = vec4(r, g, b, 1.);\n}\n";
+module.exports = "precision mediump float;\n#define GLSLIFY 1\nvarying vec2 uv;\n\nuniform float r;\nuniform float g;\nuniform float b;\nuniform float radius;\n\nvoid main() {\n\tfloat col = step(radius,length(uv));\n\tgl_FragColor = (1.-col)*vec4(r, g, b, 1.);\n}\n";
 },{}],"../node_modules/regl/dist/regl.js":[function(require,module,exports) {
 var define;
 var global = arguments[3];
@@ -19791,7 +19769,12 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
-var console_1 = _internal.globals.console;
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var file = "Shader.svelte";
 
 function create_fragment(ctx) {
@@ -19801,7 +19784,7 @@ function create_fragment(ctx) {
       canvas = (0, _internal.element)("canvas");
       (0, _internal.attr_dev)(canvas, "id", "canvas-main");
       (0, _internal.attr_dev)(canvas, "class", "svelte-zcnnn5");
-      (0, _internal.add_location)(canvas, file, 76, 0, 1359);
+      (0, _internal.add_location)(canvas, file, 74, 0, 1231);
     },
     l: function claim(nodes) {
       throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -19833,8 +19816,7 @@ function instance($$self, $$props, $$invalidate) {
   (0, _internal.validate_slots)("Shader", slots, []);
   var _$$props$controlsArra = $$props.controlsArray,
       controlsArray = _$$props$controlsArra === void 0 ? [] : _$$props$controlsArra;
-  console.log(controlsArray);
-  var controlsDict = {};
+  var controlUniforms = {};
   var saveImageButtonObj = {
     "Save image": function SaveImage() {
       var canvas = document.querySelector("canvas");
@@ -19860,21 +19842,12 @@ function instance($$self, $$props, $$invalidate) {
       attributes: {
         position: [-4, -4, 4, -4, 0, 4]
       },
-      uniforms: {
+      uniforms: _objectSpread(_objectSpread({}, controlUniforms), {}, {
         tick: regl.context("tick"),
-        r: function r() {
-          return controlsDict.r.value;
-        },
-        g: function g() {
-          return controlsDict.g.value;
-        },
-        b: function b() {
-          return controlsDict.b.value;
-        },
         TIME: regl.context("time"),
         width: regl.context("viewportWidth"),
         height: regl.context("viewportHeight")
-      },
+      }),
       depth: {
         enable: false
       },
@@ -19889,7 +19862,7 @@ function instance($$self, $$props, $$invalidate) {
 
   var writable_props = ["controlsArray"];
   Object.keys($$props).forEach(function (key) {
-    if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1.warn("<Shader> was created with unknown prop '".concat(key, "'"));
+    if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn("<Shader> was created with unknown prop '".concat(key, "'"));
   });
 
   $$self.$$set = function ($$props) {
@@ -19900,14 +19873,14 @@ function instance($$self, $$props, $$invalidate) {
     return {
       shaderFrag: _shader.default,
       controlsArray: controlsArray,
-      controlsDict: controlsDict,
+      controlUniforms: controlUniforms,
       saveImageButtonObj: saveImageButtonObj
     };
   };
 
   $$self.$inject_state = function ($$props) {
     if ("controlsArray" in $$props) $$invalidate(0, controlsArray = $$props.controlsArray);
-    if ("controlsDict" in $$props) controlsDict = $$props.controlsDict;
+    if ("controlUniforms" in $$props) controlUniforms = $$props.controlUniforms;
     if ("saveImageButtonObj" in $$props) saveImageButtonObj = $$props.saveImageButtonObj;
   };
 
@@ -19920,8 +19893,8 @@ function instance($$self, $$props, $$invalidate) {
     /*controlsArray*/
     1) {
       $: controlsArray.forEach(function (d) {
-        controlsDict[d.name] = {
-          value: d.value
+        controlUniforms[d.name] = function () {
+          return d.value;
         };
       });
     }
@@ -20018,51 +19991,37 @@ var file = "App.svelte";
 
 function get_each_context(ctx, list, i) {
   var child_ctx = ctx.slice();
-  child_ctx[3] = list[i];
-  child_ctx[4] = list;
-  child_ctx[5] = i;
+  child_ctx[2] = list[i];
+  child_ctx[3] = list;
+  child_ctx[4] = i;
   return child_ctx;
-} // (24:0) {#each controlsArray as c}
+} // (25:0) {#each controlsArray as c}
 
 
 function create_each_block(ctx) {
   var control;
   var updating_value;
-  var updating_cc;
   var current;
 
   function control_value_binding(value) {
     /*control_value_binding*/
     ctx[1].call(null, value,
     /*c*/
-    ctx[3]);
-  }
-
-  function control_cc_binding(value) {
-    /*control_cc_binding*/
-    ctx[2].call(null, value);
+    ctx[2]);
   }
 
   var control_props = {
     name:
     /*c*/
-    ctx[3].name
+    ctx[2].name
   };
 
   if (
   /*c*/
-  ctx[3].value !== void 0) {
+  ctx[2].value !== void 0) {
     control_props.value =
     /*c*/
-    ctx[3].value;
-  }
-
-  if (
-  /*controlsArray*/
-  ctx[0] !== void 0) {
-    control_props.cc =
-    /*controlsArray*/
-    ctx[0];
+    ctx[2].value;
   }
 
   control = new _Control.default({
@@ -20072,10 +20031,6 @@ function create_each_block(ctx) {
 
   _internal.binding_callbacks.push(function () {
     return (0, _internal.bind)(control, "value", control_value_binding);
-  });
-
-  _internal.binding_callbacks.push(function () {
-    return (0, _internal.bind)(control, "cc", control_cc_binding);
   });
 
   var block = {
@@ -20093,7 +20048,7 @@ function create_each_block(ctx) {
       /*controlsArray*/
       1) control_changes.name =
       /*c*/
-      ctx[3].name;
+      ctx[2].name;
 
       if (!updating_value && dirty &
       /*controlsArray*/
@@ -20101,21 +20056,9 @@ function create_each_block(ctx) {
         updating_value = true;
         control_changes.value =
         /*c*/
-        ctx[3].value;
+        ctx[2].value;
         (0, _internal.add_flush_callback)(function () {
           return updating_value = false;
-        });
-      }
-
-      if (!updating_cc && dirty &
-      /*controlsArray*/
-      1) {
-        updating_cc = true;
-        control_changes.cc =
-        /*controlsArray*/
-        ctx[0];
-        (0, _internal.add_flush_callback)(function () {
-          return updating_cc = false;
         });
       }
 
@@ -20138,7 +20081,7 @@ function create_each_block(ctx) {
     block: block,
     id: create_each_block.name,
     type: "each",
-    source: "(24:0) {#each controlsArray as c}",
+    source: "(25:0) {#each controlsArray as c}",
     ctx: ctx
   });
   return block;
@@ -20146,12 +20089,8 @@ function create_each_block(ctx) {
 
 function create_fragment(ctx) {
   var shader;
-  var t0;
+  var t;
   var div;
-  var t1;
-  var svg;
-  var circle;
-  var circle_r_value;
   var current;
   shader = new _Shader.default({
     props: {
@@ -20180,42 +20119,28 @@ function create_fragment(ctx) {
   var block = {
     c: function create() {
       (0, _internal.create_component)(shader.$$.fragment);
-      t0 = (0, _internal.space)();
+      t = (0, _internal.space)();
       div = (0, _internal.element)("div");
 
       for (var _i = 0; _i < each_blocks.length; _i += 1) {
         each_blocks[_i].c();
       }
 
-      t1 = (0, _internal.space)();
-      svg = (0, _internal.svg_element)("svg");
-      circle = (0, _internal.svg_element)("circle");
       (0, _internal.attr_dev)(div, "class", "control-panel");
-      (0, _internal.add_location)(div, file, 21, 0, 326);
-      (0, _internal.attr_dev)(circle, "fill", "white");
-      (0, _internal.attr_dev)(circle, "cx", "0");
-      (0, _internal.attr_dev)(circle, "cy", "0");
-      (0, _internal.attr_dev)(circle, "r", circle_r_value =
-      /*controlsArray*/
-      ctx[0][0].value);
-      (0, _internal.add_location)(circle, file, 28, 5, 477);
-      (0, _internal.add_location)(svg, file, 28, 0, 472);
+      (0, _internal.add_location)(div, file, 22, 0, 355);
     },
     l: function claim(nodes) {
       throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
     },
     m: function mount(target, anchor) {
       (0, _internal.mount_component)(shader, target, anchor);
-      (0, _internal.insert_dev)(target, t0, anchor);
+      (0, _internal.insert_dev)(target, t, anchor);
       (0, _internal.insert_dev)(target, div, anchor);
 
       for (var _i2 = 0; _i2 < each_blocks.length; _i2 += 1) {
         each_blocks[_i2].m(div, null);
       }
 
-      (0, _internal.insert_dev)(target, t1, anchor);
-      (0, _internal.insert_dev)(target, svg, anchor);
-      (0, _internal.append_dev)(svg, circle);
       current = true;
     },
     p: function update(ctx, _ref) {
@@ -20266,14 +20191,6 @@ function create_fragment(ctx) {
 
         (0, _internal.check_outros)();
       }
-
-      if (!current || dirty &
-      /*controlsArray*/
-      1 && circle_r_value !== (circle_r_value =
-      /*controlsArray*/
-      ctx[0][0].value)) {
-        (0, _internal.attr_dev)(circle, "r", circle_r_value);
-      }
     },
     i: function intro(local) {
       if (current) return;
@@ -20297,11 +20214,9 @@ function create_fragment(ctx) {
     },
     d: function destroy(detaching) {
       (0, _internal.destroy_component)(shader, detaching);
-      if (detaching) (0, _internal.detach_dev)(t0);
+      if (detaching) (0, _internal.detach_dev)(t);
       if (detaching) (0, _internal.detach_dev)(div);
       (0, _internal.destroy_each)(each_blocks, detaching);
-      if (detaching) (0, _internal.detach_dev)(t1);
-      if (detaching) (0, _internal.detach_dev)(svg);
     }
   };
   (0, _internal.dispatch_dev)("SvelteRegisterBlock", {
@@ -20321,13 +20236,16 @@ function instance($$self, $$props, $$invalidate) {
   (0, _internal.validate_slots)("App", slots, []);
   var controlsArray = [{
     name: "r",
-    value: 0
+    value: 1
   }, {
     name: "g",
     value: 0
   }, {
     name: "b",
     value: 0
+  }, {
+    name: "radius",
+    value: 0.5
   }];
   var writable_props = [];
   Object.keys($$props).forEach(function (key) {
@@ -20336,11 +20254,6 @@ function instance($$self, $$props, $$invalidate) {
 
   function control_value_binding(value, c) {
     c.value = value;
-    $$invalidate(0, controlsArray);
-  }
-
-  function control_cc_binding(value) {
-    controlsArray = value;
     $$invalidate(0, controlsArray);
   }
 
@@ -20360,7 +20273,7 @@ function instance($$self, $$props, $$invalidate) {
     $$self.$inject_state($$props.$$inject);
   }
 
-  return [controlsArray, control_value_binding, control_cc_binding];
+  return [controlsArray, control_value_binding];
 }
 
 var App = /*#__PURE__*/function (_SvelteComponentDev) {
@@ -20690,7 +20603,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50970" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51033" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
