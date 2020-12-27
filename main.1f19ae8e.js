@@ -8887,7 +8887,7 @@ function create_fragment(ctx) {
       t2 = (0, _internal.space)();
       input1 = (0, _internal.element)("input");
       (0, _internal.attr_dev)(label, "for", "control");
-      (0, _internal.add_location)(label, file, 1, 1, 7);
+      (0, _internal.add_location)(label, file, 12, 1, 166);
       (0, _internal.attr_dev)(input0, "type", "number");
       (0, _internal.attr_dev)(input0, "min",
       /*min*/
@@ -8899,7 +8899,7 @@ function create_fragment(ctx) {
       /*step*/
       ctx[4]);
       (0, _internal.attr_dev)(input0, "id", "control");
-      (0, _internal.add_location)(input0, file, 2, 1, 44);
+      (0, _internal.add_location)(input0, file, 13, 1, 203);
       (0, _internal.attr_dev)(input1, "type", "range");
       (0, _internal.attr_dev)(input1, "min",
       /*min*/
@@ -8910,8 +8910,8 @@ function create_fragment(ctx) {
       (0, _internal.attr_dev)(input1, "step",
       /*step*/
       ctx[4]);
-      (0, _internal.add_location)(input1, file, 3, 1, 129);
-      (0, _internal.add_location)(div, file, 0, 0, 0);
+      (0, _internal.add_location)(input1, file, 14, 1, 288);
+      (0, _internal.add_location)(div, file, 11, 0, 159);
     },
     l: function claim(nodes) {
       throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -9051,6 +9051,7 @@ function instance($$self, $$props, $$invalidate) {
       max = _$$props$max === void 0 ? 1 : _$$props$max;
   var _$$props$step = $$props.step,
       step = _$$props$step === void 0 ? (max - min) / 100 : _$$props$step;
+  var val = 0.5;
   var writable_props = ["name", "min", "value", "max", "step"];
   Object.keys($$props).forEach(function (key) {
     if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn("<Control> was created with unknown prop '".concat(key, "'"));
@@ -9080,7 +9081,8 @@ function instance($$self, $$props, $$invalidate) {
       min: min,
       value: value,
       max: max,
-      step: step
+      step: step,
+      val: val
     };
   };
 
@@ -9090,6 +9092,7 @@ function instance($$self, $$props, $$invalidate) {
     if ("value" in $$props) $$invalidate(0, value = $$props.value);
     if ("max" in $$props) $$invalidate(3, max = $$props.max);
     if ("step" in $$props) $$invalidate(4, step = $$props.step);
+    if ("val" in $$props) val = $$props.val;
   };
 
   if ($$props && "$$inject" in $$props) {
@@ -19964,6 +19967,8 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -19984,7 +19989,7 @@ function get_each_context(ctx, list, i) {
   child_ctx[4] = list;
   child_ctx[5] = i;
   return child_ctx;
-} // (41:1) {#each controlsArray as c}
+} // (42:1) {#each controlsArray as c}
 
 
 function create_each_block(ctx) {
@@ -20094,7 +20099,7 @@ function create_each_block(ctx) {
     block: block,
     id: create_each_block.name,
     type: "each",
-    source: "(41:1) {#each controlsArray as c}",
+    source: "(42:1) {#each controlsArray as c}",
     ctx: ctx
   });
   return block;
@@ -20146,9 +20151,9 @@ function create_fragment(ctx) {
       t1 = (0, _internal.space)();
       button = (0, _internal.element)("button");
       button.textContent = "Save image";
-      (0, _internal.add_location)(button, file, 44, 1, 1079);
+      (0, _internal.add_location)(button, file, 45, 1, 1215);
       (0, _internal.attr_dev)(div, "class", "control-panel svelte-925nyu");
-      (0, _internal.add_location)(div, file, 39, 0, 923);
+      (0, _internal.add_location)(div, file, 40, 0, 1061);
     },
     l: function claim(nodes) {
       throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -20269,38 +20274,53 @@ function instance($$self, $$props, $$invalidate) {
   var controlsArray = [{
     name: "Lightness threshold",
     id: "threshold",
-    value: 0
+    min: -1,
+    value: 0,
+    max: 1,
+    step: 0.01
   }, {
     name: "Color shift",
     id: "colorShift_",
-    value: 0.02
+    value: 0.02,
+    max: 1,
+    step: 0.01
   }, {
     name: "Spot seed",
     id: "spotSeed",
-    value: 0
+    value: 0,
+    max: 1,
+    step: 0.01
   }, {
     name: "Spot radius",
     id: "spotRadius",
-    value: 0.5
+    value: 0.5,
+    max: 1,
+    step: 0.01
   }, {
     name: "Spot details",
     id: "spotDetails",
-    value: 0.5
+    value: 0.5,
+    max: 1,
+    step: 0.01
   }, {
     name: "Spot amplitude",
     id: "spotAmplitude",
-    value: 0.5
+    value: 0.5,
+    max: 1,
+    step: 0.01
   }, {
     name: "Blur",
     id: "blur",
-    value: 0.1
-  }, {
+    value: 0.1,
+    max: 1,
+    step: 0.01
+  }, _defineProperty({
     name: "Time",
     id: "time_",
     value: 0,
     max: 500,
     step: 0.1
-  }];
+  }, "step", 0.01)];
 
   var saveImage = function saveImage() {
     var canvas = document.querySelector("#canvas-main");
@@ -20668,7 +20688,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60682" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58426" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
