@@ -8819,7 +8819,74 @@ function loop_guard(timeout) {
     }
   };
 }
-},{}],"Control.svelte":[function(require,module,exports) {
+},{}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+var bundleURL = null;
+
+function getBundleURLCached() {
+  if (!bundleURL) {
+    bundleURL = getBundleURL();
+  }
+
+  return bundleURL;
+}
+
+function getBundleURL() {
+  // Attempt to find the URL of the current script and use that as the base URL
+  try {
+    throw new Error();
+  } catch (err) {
+    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+
+    if (matches) {
+      return getBaseURL(matches[0]);
+    }
+  }
+
+  return '/';
+}
+
+function getBaseURL(url) {
+  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)\/[^/]+$/, '$1') + '/';
+}
+
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+},{}],"../node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
+var bundle = require('./bundle-url');
+
+function updateLink(link) {
+  var newLink = link.cloneNode();
+
+  newLink.onload = function () {
+    link.remove();
+  };
+
+  newLink.href = link.href.split('?')[0] + '?' + Date.now();
+  link.parentNode.insertBefore(newLink, link.nextSibling);
+}
+
+var cssTimeout = null;
+
+function reloadCSS() {
+  if (cssTimeout) {
+    return;
+  }
+
+  cssTimeout = setTimeout(function () {
+    var links = document.querySelectorAll('link[rel="stylesheet"]');
+
+    for (var i = 0; i < links.length; i++) {
+      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
+        updateLink(links[i]);
+      }
+    }
+
+    cssTimeout = null;
+  }, 50);
+}
+
+module.exports = reloadCSS;
+},{"./bundle-url":"../node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"Control.svelte":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8887,7 +8954,8 @@ function create_fragment(ctx) {
       t2 = (0, _internal.space)();
       input1 = (0, _internal.element)("input");
       (0, _internal.attr_dev)(label, "for", "control");
-      (0, _internal.add_location)(label, file, 12, 1, 166);
+      (0, _internal.attr_dev)(label, "class", "svelte-6r20jy");
+      (0, _internal.add_location)(label, file, 59, 1, 859);
       (0, _internal.attr_dev)(input0, "type", "number");
       (0, _internal.attr_dev)(input0, "min",
       /*min*/
@@ -8899,7 +8967,8 @@ function create_fragment(ctx) {
       /*step*/
       ctx[4]);
       (0, _internal.attr_dev)(input0, "id", "control");
-      (0, _internal.add_location)(input0, file, 13, 1, 203);
+      (0, _internal.attr_dev)(input0, "class", "svelte-6r20jy");
+      (0, _internal.add_location)(input0, file, 60, 1, 896);
       (0, _internal.attr_dev)(input1, "type", "range");
       (0, _internal.attr_dev)(input1, "min",
       /*min*/
@@ -8910,8 +8979,16 @@ function create_fragment(ctx) {
       (0, _internal.attr_dev)(input1, "step",
       /*step*/
       ctx[4]);
-      (0, _internal.add_location)(input1, file, 14, 1, 288);
-      (0, _internal.add_location)(div, file, 11, 0, 159);
+      (0, _internal.set_style)(input1, "width",
+      /*width*/
+      ctx[6] + "px");
+      (0, _internal.set_style)(input1, "--val",
+      /*percent*/
+      ctx[5] + "px");
+      (0, _internal.attr_dev)(input1, "class", "svelte-6r20jy");
+      (0, _internal.add_location)(input1, file, 61, 1, 981);
+      (0, _internal.attr_dev)(div, "class", "row svelte-6r20jy");
+      (0, _internal.add_location)(div, file, 58, 0, 840);
     },
     l: function claim(nodes) {
       throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -8934,11 +9011,11 @@ function create_fragment(ctx) {
       if (!mounted) {
         dispose = [(0, _internal.listen_dev)(input0, "input",
         /*input0_input_handler*/
-        ctx[5]), (0, _internal.listen_dev)(input1, "change",
+        ctx[7]), (0, _internal.listen_dev)(input1, "change",
         /*input1_change_input_handler*/
-        ctx[6]), (0, _internal.listen_dev)(input1, "input",
+        ctx[8]), (0, _internal.listen_dev)(input1, "input",
         /*input1_change_input_handler*/
-        ctx[6])];
+        ctx[8])];
         mounted = true;
       }
     },
@@ -9011,6 +9088,14 @@ function create_fragment(ctx) {
       }
 
       if (dirty &
+      /*percent*/
+      32) {
+        (0, _internal.set_style)(input1, "--val",
+        /*percent*/
+        ctx[5] + "px");
+      }
+
+      if (dirty &
       /*value*/
       1) {
         (0, _internal.set_input_value)(input1,
@@ -9051,7 +9136,8 @@ function instance($$self, $$props, $$invalidate) {
       max = _$$props$max === void 0 ? 1 : _$$props$max;
   var _$$props$step = $$props.step,
       step = _$$props$step === void 0 ? (max - min) / 100 : _$$props$step;
-  var val = 0.5;
+  var width = 130;
+  var percent;
   var writable_props = ["name", "min", "value", "max", "step"];
   Object.keys($$props).forEach(function (key) {
     if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console.warn("<Control> was created with unknown prop '".concat(key, "'"));
@@ -9082,7 +9168,8 @@ function instance($$self, $$props, $$invalidate) {
       value: value,
       max: max,
       step: step,
-      val: val
+      width: width,
+      percent: percent
     };
   };
 
@@ -9092,14 +9179,23 @@ function instance($$self, $$props, $$invalidate) {
     if ("value" in $$props) $$invalidate(0, value = $$props.value);
     if ("max" in $$props) $$invalidate(3, max = $$props.max);
     if ("step" in $$props) $$invalidate(4, step = $$props.step);
-    if ("val" in $$props) val = $$props.val;
+    if ("width" in $$props) $$invalidate(6, width = $$props.width);
+    if ("percent" in $$props) $$invalidate(5, percent = $$props.percent);
   };
 
   if ($$props && "$$inject" in $$props) {
     $$self.$inject_state($$props.$$inject);
   }
 
-  return [value, name, min, max, step, input0_input_handler, input1_change_input_handler];
+  $$self.$$.update = function () {
+    if ($$self.$$.dirty &
+    /*value, min, max*/
+    13) {
+      $: $$invalidate(5, percent = width * (value - min) / (max - min));
+    }
+  };
+
+  return [value, name, min, max, step, percent, width, input0_input_handler, input1_change_input_handler];
 }
 
 var Control = /*#__PURE__*/function (_SvelteComponentDev) {
@@ -9176,7 +9272,7 @@ var Control = /*#__PURE__*/function (_SvelteComponentDev) {
 
 var _default = Control;
 exports.default = _default;
-},{"svelte/internal":"../node_modules/svelte/internal/index.mjs"}],"openEye.frag":[function(require,module,exports) {
+},{"svelte/internal":"../node_modules/svelte/internal/index.mjs","_css_loader":"../node_modules/parcel-bundler/src/builtins/css-loader.js"}],"openEye.frag":[function(require,module,exports) {
 module.exports = "precision mediump float;\n#define GLSLIFY 1\nvarying vec2 uv;\n\nuniform float threshold;\nuniform float time_;\nuniform float spotSeed;\nuniform float colorShift_;\nuniform float spotRadius;\nuniform float spotDetails;\nuniform float spotAmplitude;\nuniform float blur;\nuniform float TIME;\nuniform float width;\nuniform float height;\n\n#define pointsNumber 8\n\nfloat WaveletNoise(vec2 p, float z, float k) {\n    float d=0.,s=1.,m=0., a;\n    for(float i=0.; i<4.; i++) {\n        vec2 q = p*s, g=fract(floor(q)*vec2(123.34,233.53));\n    \tg += dot(g, g+23.234);\n\t\ta = fract(g.x*g.y)*1e3;// +z*(mod(g.x+g.y, 2.)-1.); // add vorticity\n        q = (fract(q)-.5)*mat2(cos(a),-sin(a),sin(a),cos(a));\n        d += sin(q.x*10.+z)*smoothstep(.25, .0, dot(q,q))/s;\n        p = p*mat2(.54,-.84, .84, .54)+i;\n        m += 1./s;\n        s *= k; \n    }\n    return d/m + 0.5;\n}\n\nvec3 colorShift = vec3(0., colorShift_, colorShift_ * 2.);\n\nfloat noise(float x, float y) {\n    return WaveletNoise(vec2(x, y), 1., 0.5);\n}\n\nstruct Point\n{\n  float mass;\n  vec3 posX; // for rgb\n  vec3 posY;\n};\n\nvoid main()\n{\n    // Point points[3] = Point[3](\n    //   Point(1.0,  vec2(-19.0, 4.5)),\n    //   Point(-3.0, vec2(2.718, 2.0)),\n    //   Point(29.5, vec2(3.142, 3.333))\n    // );\n\n    Point points[pointsNumber];\n    for (int i = 0; i < pointsNumber; i++) {\n        float mass = noise(\n            10. + 400. * float(i),\n            1.+ 800. + (time_ + TIME) * 0.1 + colorShift.b\n          );\n        mass -= 0.5;\n        vec3 cs = colorShift;\n        \n        vec3 posX; // for rgb\n        vec3 posY;\n        posX.r = noise(\n            10. + 100. * float(i),\n            1.+ 600. + (time_ + TIME) * 0.1 + cs.r\n        );\n        posY.r = noise(\n            1. + 400. * float(i),\n            10.+ 200. + (time_ + TIME) * 0.1 + cs.r\n        );\n        posX.g = noise(\n            10. + 100. * float(i),\n            1.+ 600. + (time_ + TIME) * 0.1 + cs.g\n        );\n        posY.g = noise(\n            1. + 400. * float(i),\n            10.+ 200. + (time_ + TIME) * 0.1 + cs.g\n        );\n        posX.b = noise(\n            10. + 100. * float(i),\n            1.+ 600. + (time_ + TIME) * 0.1 + cs.b\n        );\n        posY.b = noise(\n            1. + 400. * float(i),\n            10.+ 200. + (time_ + TIME) * 0.1 + cs.b\n          );\n          \n        points[i] = Point(mass * 100., posX, posY);\n    }\n\n    vec2 xy = uv;\n    xy *= vec2(width, height);\n\t\txy /= min(width,height);\n\t\txy += +1.;\n    xy /= 2.;\n    \n    vec3 field = vec3(0.);\n    for (int i = 0; i < pointsNumber; i++) {\n        field.r += 0.0001 * points[i].mass / \n            pow(distance(vec2(points[i].posX.r, points[i].posY.r), xy), 2.);\n        field.g += 0.0001 * points[i].mass / \n            pow(distance(vec2(points[i].posX.g, points[i].posY.g), xy), 2.);\n        field.b += 0.0001 * points[i].mass / \n            pow(distance(vec2(points[i].posX.b, points[i].posY.b), xy), 2.);\n    }\n    \n    // vec3 field = vec3(1.);\n    // for (int i = 0; i < pointsNumber; i++) {\n    //     field.r *= points[i].mass * 1. / distance(vec2(points[i].posX.r, points[i].posY.r), xy);\n    //     field.g *= points[i].mass * 1. / distance(vec2(points[i].posX.g, points[i].posY.g), xy);\n    //     field.b *= points[i].mass * 1. / distance(vec2(points[i].posX.b, points[i].posY.b), xy);\n    // }\n    \n    vec2 spotDistort;\n    spotDistort.x = WaveletNoise(xy + vec2(0., 100. + spotSeed), 1., spotDetails);\n    spotDistort.y = WaveletNoise(xy + vec2(100., 0. + spotSeed), 1., spotDetails);\n    spotDistort *= spotAmplitude;\n    float k = mix(1., -1., smoothstep(spotRadius - blur, spotRadius, distance(vec2(0.5), xy + spotDistort)));\n    field = field * k;\n\n    vec3 abberation = vec3(0., .01, .02);\n    vec3 color = vec3(smoothstep(threshold-blur, threshold+blur, vec3(field\n    )));\n    \n    // color = mix(color, 1. - color, smoothstep(spotRadius - blur, spotRadius, distance(vec2(0.5), xy)));\n\n    // if (distance(point1, xy) < 0.01) color = vec3(1., 0., 0.);\n    // if (distance(point2, xy) < 0.01) color = vec3(1., 0., 0.);\n    // if (distance(point3, xy) < 0.01) color = vec3(1., 0., 0.);\n    \n\tgl_FragColor = vec4(color, 1.);\n}\n\n";
 },{}],"../node_modules/regl/dist/regl.js":[function(require,module,exports) {
 var define;
@@ -19669,74 +19765,7 @@ return wrapREGL;
 })));
 
 
-},{}],"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
-
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
-  }
-
-  return bundleURL;
-}
-
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
-
-    if (matches) {
-      return getBaseURL(matches[0]);
-    }
-  }
-
-  return '/';
-}
-
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)\/[^/]+$/, '$1') + '/';
-}
-
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"../node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
-
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
-  };
-
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
-  }
-
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
-      }
-    }
-
-    cssTimeout = null;
-  }, 50);
-}
-
-module.exports = reloadCSS;
-},{"./bundle-url":"../node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"Shader.svelte":[function(require,module,exports) {
+},{}],"Shader.svelte":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -19782,12 +19811,20 @@ var file = "Shader.svelte";
 
 function create_fragment(ctx) {
   var canvas;
+  var canvas_width_value;
+  var canvas_height_value;
   var block = {
     c: function create() {
       canvas = (0, _internal.element)("canvas");
       (0, _internal.attr_dev)(canvas, "id", "canvas-main");
+      (0, _internal.attr_dev)(canvas, "width", canvas_width_value = document.documentElement.clientWidth *
+      /*pixelRatio*/
+      ctx[0]);
+      (0, _internal.attr_dev)(canvas, "height", canvas_height_value = document.documentElement.clientHeight *
+      /*pixelRatio*/
+      ctx[0]);
       (0, _internal.attr_dev)(canvas, "class", "svelte-zcnnn5");
-      (0, _internal.add_location)(canvas, file, 64, 0, 991);
+      (0, _internal.add_location)(canvas, file, 62, 0, 1007);
     },
     l: function claim(nodes) {
       throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -19819,12 +19856,13 @@ function instance($$self, $$props, $$invalidate) {
   (0, _internal.validate_slots)("Shader", slots, []);
   var _$$props$controlsArra = $$props.controlsArray,
       controlsArray = _$$props$controlsArra === void 0 ? [] : _$$props$controlsArra;
+  var pixelRatio = 1; // 1/8 is faster
+
   var controlUniforms = {};
 
   window.onload = function () {
     var regl = require("regl")({
       canvas: "#canvas-main",
-      pixelRatio: 1 / 2,
       attributes: {
         preserveDrawingBuffer: true
       }
@@ -19860,19 +19898,21 @@ function instance($$self, $$props, $$invalidate) {
   });
 
   $$self.$$set = function ($$props) {
-    if ("controlsArray" in $$props) $$invalidate(0, controlsArray = $$props.controlsArray);
+    if ("controlsArray" in $$props) $$invalidate(1, controlsArray = $$props.controlsArray);
   };
 
   $$self.$capture_state = function () {
     return {
       shaderFrag: _openEye.default,
       controlsArray: controlsArray,
+      pixelRatio: pixelRatio,
       controlUniforms: controlUniforms
     };
   };
 
   $$self.$inject_state = function ($$props) {
-    if ("controlsArray" in $$props) $$invalidate(0, controlsArray = $$props.controlsArray);
+    if ("controlsArray" in $$props) $$invalidate(1, controlsArray = $$props.controlsArray);
+    if ("pixelRatio" in $$props) $$invalidate(0, pixelRatio = $$props.pixelRatio);
     if ("controlUniforms" in $$props) controlUniforms = $$props.controlUniforms;
   };
 
@@ -19883,7 +19923,7 @@ function instance($$self, $$props, $$invalidate) {
   $$self.$$.update = function () {
     if ($$self.$$.dirty &
     /*controlsArray*/
-    1) {
+    2) {
       $: controlsArray.forEach(function (d) {
         controlUniforms[d.id] = function () {
           return d.value;
@@ -19892,7 +19932,7 @@ function instance($$self, $$props, $$invalidate) {
     }
   };
 
-  return [controlsArray];
+  return [pixelRatio, controlsArray];
 }
 
 var Shader = /*#__PURE__*/function (_SvelteComponentDev) {
@@ -19907,7 +19947,7 @@ var Shader = /*#__PURE__*/function (_SvelteComponentDev) {
 
     _this = _super.call(this, options);
     (0, _internal.init)(_assertThisInitialized(_this), options, instance, create_fragment, _internal.safe_not_equal, {
-      controlsArray: 0
+      controlsArray: 1
     });
     (0, _internal.dispatch_dev)("SvelteRegisterComponent", {
       component: _assertThisInitialized(_this),
@@ -19989,7 +20029,7 @@ function get_each_context(ctx, list, i) {
   child_ctx[4] = list;
   child_ctx[5] = i;
   return child_ctx;
-} // (42:1) {#each controlsArray as c}
+} // (98:1) {#each controlsArray as c}
 
 
 function create_each_block(ctx) {
@@ -20099,7 +20139,7 @@ function create_each_block(ctx) {
     block: block,
     id: create_each_block.name,
     type: "each",
-    source: "(42:1) {#each controlsArray as c}",
+    source: "(98:1) {#each controlsArray as c}",
     ctx: ctx
   });
   return block;
@@ -20108,8 +20148,13 @@ function create_each_block(ctx) {
 function create_fragment(ctx) {
   var shader;
   var t0;
-  var div;
+  var div3;
+  var div2;
+  var div0;
   var t1;
+  var div1;
+  var t3;
+  var t4;
   var button;
   var current;
   var mounted;
@@ -20142,18 +20187,31 @@ function create_fragment(ctx) {
     c: function create() {
       (0, _internal.create_component)(shader.$$.fragment);
       t0 = (0, _internal.space)();
-      div = (0, _internal.element)("div");
+      div3 = (0, _internal.element)("div");
+      div2 = (0, _internal.element)("div");
+      div0 = (0, _internal.element)("div");
+      t1 = (0, _internal.space)();
+      div1 = (0, _internal.element)("div");
+      div1.textContent = "Open eye by Pre-logo";
+      t3 = (0, _internal.space)();
 
       for (var _i = 0; _i < each_blocks.length; _i += 1) {
         each_blocks[_i].c();
       }
 
-      t1 = (0, _internal.space)();
+      t4 = (0, _internal.space)();
       button = (0, _internal.element)("button");
-      button.textContent = "Save image";
-      (0, _internal.add_location)(button, file, 45, 1, 1215);
-      (0, _internal.attr_dev)(div, "class", "control-panel svelte-925nyu");
-      (0, _internal.add_location)(div, file, 40, 0, 1061);
+      button.textContent = "Download image";
+      (0, _internal.attr_dev)(div0, "class", "logo svelte-lg7b2e");
+      (0, _internal.add_location)(div0, file, 93, 2, 1925);
+      (0, _internal.attr_dev)(div1, "class", "title svelte-lg7b2e");
+      (0, _internal.add_location)(div1, file, 94, 2, 1952);
+      (0, _internal.attr_dev)(div2, "class", "header svelte-lg7b2e");
+      (0, _internal.add_location)(div2, file, 92, 1, 1902);
+      (0, _internal.attr_dev)(button, "class", "svelte-lg7b2e");
+      (0, _internal.add_location)(button, file, 101, 1, 2133);
+      (0, _internal.attr_dev)(div3, "class", "control-panel svelte-lg7b2e");
+      (0, _internal.add_location)(div3, file, 91, 0, 1873);
     },
     l: function claim(nodes) {
       throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -20161,14 +20219,19 @@ function create_fragment(ctx) {
     m: function mount(target, anchor) {
       (0, _internal.mount_component)(shader, target, anchor);
       (0, _internal.insert_dev)(target, t0, anchor);
-      (0, _internal.insert_dev)(target, div, anchor);
+      (0, _internal.insert_dev)(target, div3, anchor);
+      (0, _internal.append_dev)(div3, div2);
+      (0, _internal.append_dev)(div2, div0);
+      (0, _internal.append_dev)(div2, t1);
+      (0, _internal.append_dev)(div2, div1);
+      (0, _internal.append_dev)(div3, t3);
 
       for (var _i2 = 0; _i2 < each_blocks.length; _i2 += 1) {
-        each_blocks[_i2].m(div, null);
+        each_blocks[_i2].m(div3, null);
       }
 
-      (0, _internal.append_dev)(div, t1);
-      (0, _internal.append_dev)(div, button);
+      (0, _internal.append_dev)(div3, t4);
+      (0, _internal.append_dev)(div3, button);
       current = true;
 
       if (!mounted) {
@@ -20214,7 +20277,7 @@ function create_fragment(ctx) {
 
             (0, _internal.transition_in)(each_blocks[_i3], 1);
 
-            each_blocks[_i3].m(div, t1);
+            each_blocks[_i3].m(div3, t4);
           }
         }
 
@@ -20250,7 +20313,7 @@ function create_fragment(ctx) {
     d: function destroy(detaching) {
       (0, _internal.destroy_component)(shader, detaching);
       if (detaching) (0, _internal.detach_dev)(t0);
-      if (detaching) (0, _internal.detach_dev)(div);
+      if (detaching) (0, _internal.detach_dev)(div3);
       (0, _internal.destroy_each)(each_blocks, detaching);
       mounted = false;
       dispose();
@@ -20267,6 +20330,8 @@ function create_fragment(ctx) {
 }
 
 function instance($$self, $$props, $$invalidate) {
+  var _ref3;
+
   var _$$props$$$slots = $$props.$$slots,
       slots = _$$props$$$slots === void 0 ? {} : _$$props$$$slots,
       $$scope = $$props.$$scope;
@@ -20283,44 +20348,50 @@ function instance($$self, $$props, $$invalidate) {
     id: "colorShift_",
     value: 0.02,
     max: 1,
-    step: 0.01
+    step: 0.01,
+    min: 0
   }, {
     name: "Spot seed",
     id: "spotSeed",
     value: 0,
     max: 1,
-    step: 0.01
+    step: 0.01,
+    min: 0
   }, {
     name: "Spot radius",
     id: "spotRadius",
     value: 0.5,
     max: 1,
-    step: 0.01
+    step: 0.01,
+    min: 0
   }, {
     name: "Spot details",
     id: "spotDetails",
     value: 0.5,
     max: 1,
-    step: 0.01
+    step: 0.01,
+    min: 0
   }, {
     name: "Spot amplitude",
     id: "spotAmplitude",
     value: 0.5,
     max: 1,
-    step: 0.01
+    step: 0.01,
+    min: 0
   }, {
     name: "Blur",
     id: "blur",
     value: 0.1,
     max: 1,
-    step: 0.01
-  }, _defineProperty({
+    step: 0.01,
+    min: 0
+  }, (_ref3 = {
     name: "Time",
     id: "time_",
     value: 0,
     max: 500,
     step: 0.1
-  }, "step", 0.01)];
+  }, _defineProperty(_ref3, "step", 0.01), _defineProperty(_ref3, "min", 0), _ref3)];
 
   var saveImage = function saveImage() {
     var canvas = document.querySelector("#canvas-main");
@@ -20387,7 +20458,7 @@ var App = /*#__PURE__*/function (_SvelteComponentDev) {
 
 var _default = App;
 exports.default = _default;
-},{"svelte/internal":"../node_modules/svelte/internal/index.mjs","./Control.svelte":"Control.svelte","./Shader.svelte":"Shader.svelte","_css_loader":"../node_modules/parcel-bundler/src/builtins/css-loader.js"}],"main.js":[function(require,module,exports) {
+},{"svelte/internal":"../node_modules/svelte/internal/index.mjs","./Control.svelte":"Control.svelte","./Shader.svelte":"Shader.svelte","./SuisseIntl-Book-WebTrial.woff":[["SuisseIntl-Book-WebTrial.21b2577c.woff","SuisseIntl-Book-WebTrial.woff"],"SuisseIntl-Book-WebTrial.woff"],"./logo.png":[["logo.de01bb0e.png","logo.png"],"logo.png"],"_css_loader":"../node_modules/parcel-bundler/src/builtins/css-loader.js"}],"main.js":[function(require,module,exports) {
 "use strict";
 
 require("core-js/modules/es6.array.copy-within.js");
@@ -20688,7 +20759,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58426" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51156" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
