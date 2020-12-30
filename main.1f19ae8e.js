@@ -9273,7 +9273,7 @@ var Control = /*#__PURE__*/function (_SvelteComponentDev) {
 var _default = Control;
 exports.default = _default;
 },{"svelte/internal":"../node_modules/svelte/internal/index.mjs","_css_loader":"../node_modules/parcel-bundler/src/builtins/css-loader.js"}],"openEye.frag":[function(require,module,exports) {
-module.exports = "precision mediump float;\n#define GLSLIFY 1\nvarying vec2 uv;\n\nuniform float threshold;\nuniform float time_;\nuniform float spotSeed;\nuniform float colorShift_;\nuniform float spotRadius;\nuniform float spotDetails;\nuniform float spotAmplitude;\nuniform float blur;\nuniform float TIME;\nuniform float width;\nuniform float height;\n\n#define pointsNumber 8\n\nfloat WaveletNoise(vec2 p, float z, float k) {\n    float d=0.,s=1.,m=0., a;\n    for(float i=0.; i<4.; i++) {\n        vec2 q = p*s, g=fract(floor(q)*vec2(123.34,233.53));\n    \tg += dot(g, g+23.234);\n\t\ta = fract(g.x*g.y)*1e3;// +z*(mod(g.x+g.y, 2.)-1.); // add vorticity\n        q = (fract(q)-.5)*mat2(cos(a),-sin(a),sin(a),cos(a));\n        d += sin(q.x*10.+z)*smoothstep(.25, .0, dot(q,q))/s;\n        p = p*mat2(.54,-.84, .84, .54)+i;\n        m += 1./s;\n        s *= k; \n    }\n    return d/m + 0.5;\n}\n\nvec3 colorShift = vec3(0., colorShift_, colorShift_ * 2.);\n\nfloat noise(float x, float y) {\n    return WaveletNoise(vec2(x, y), 1., 0.5);\n}\n\nstruct Point\n{\n  float mass;\n  vec3 posX; // for rgb\n  vec3 posY;\n};\n\nvoid main()\n{\n    // Point points[3] = Point[3](\n    //   Point(1.0,  vec2(-19.0, 4.5)),\n    //   Point(-3.0, vec2(2.718, 2.0)),\n    //   Point(29.5, vec2(3.142, 3.333))\n    // );\n\n    Point points[pointsNumber];\n    for (int i = 0; i < pointsNumber; i++) {\n        float mass = noise(\n            10. + 400. * float(i),\n            1.+ 800. + (time_ + TIME) * 0.1 + colorShift.b\n          );\n        mass -= 0.5;\n        vec3 cs = colorShift;\n        \n        vec3 posX; // for rgb\n        vec3 posY;\n        posX.r = noise(\n            10. + 100. * float(i),\n            1.+ 600. + (time_ + TIME) * 0.1 + cs.r\n        );\n        posY.r = noise(\n            1. + 400. * float(i),\n            10.+ 200. + (time_ + TIME) * 0.1 + cs.r\n        );\n        posX.g = noise(\n            10. + 100. * float(i),\n            1.+ 600. + (time_ + TIME) * 0.1 + cs.g\n        );\n        posY.g = noise(\n            1. + 400. * float(i),\n            10.+ 200. + (time_ + TIME) * 0.1 + cs.g\n        );\n        posX.b = noise(\n            10. + 100. * float(i),\n            1.+ 600. + (time_ + TIME) * 0.1 + cs.b\n        );\n        posY.b = noise(\n            1. + 400. * float(i),\n            10.+ 200. + (time_ + TIME) * 0.1 + cs.b\n          );\n          \n        points[i] = Point(mass * 100., posX, posY);\n    }\n\n    vec2 xy = uv;\n    xy *= vec2(width, height);\n\t\txy /= min(width,height);\n\t\txy += +1.;\n    xy /= 2.;\n    \n    vec3 field = vec3(0.);\n    for (int i = 0; i < pointsNumber; i++) {\n        field.r += 0.0001 * points[i].mass / \n            pow(distance(vec2(points[i].posX.r, points[i].posY.r), xy), 2.);\n        field.g += 0.0001 * points[i].mass / \n            pow(distance(vec2(points[i].posX.g, points[i].posY.g), xy), 2.);\n        field.b += 0.0001 * points[i].mass / \n            pow(distance(vec2(points[i].posX.b, points[i].posY.b), xy), 2.);\n    }\n    \n    // vec3 field = vec3(1.);\n    // for (int i = 0; i < pointsNumber; i++) {\n    //     field.r *= points[i].mass * 1. / distance(vec2(points[i].posX.r, points[i].posY.r), xy);\n    //     field.g *= points[i].mass * 1. / distance(vec2(points[i].posX.g, points[i].posY.g), xy);\n    //     field.b *= points[i].mass * 1. / distance(vec2(points[i].posX.b, points[i].posY.b), xy);\n    // }\n    \n    vec2 spotDistort;\n    spotDistort.x = WaveletNoise(xy + vec2(0., 100. + spotSeed), 1., spotDetails);\n    spotDistort.y = WaveletNoise(xy + vec2(100., 0. + spotSeed), 1., spotDetails);\n    spotDistort *= spotAmplitude;\n    float k = mix(1., -1., smoothstep(spotRadius - blur, spotRadius, distance(vec2(0.5), xy + spotDistort)));\n    field = field * k;\n\n    vec3 abberation = vec3(0., .01, .02);\n    vec3 color = vec3(smoothstep(threshold-blur, threshold+blur, vec3(field\n    )));\n    \n    // color = mix(color, 1. - color, smoothstep(spotRadius - blur, spotRadius, distance(vec2(0.5), xy)));\n\n    // if (distance(point1, xy) < 0.01) color = vec3(1., 0., 0.);\n    // if (distance(point2, xy) < 0.01) color = vec3(1., 0., 0.);\n    // if (distance(point3, xy) < 0.01) color = vec3(1., 0., 0.);\n    \n\tgl_FragColor = vec4(color, 1.);\n}\n\n";
+module.exports = "precision mediump float;\n#define GLSLIFY 1\nvarying vec2 uv;\n\nuniform float threshold;\nuniform float time_;\nuniform float spotSeed;\nuniform float colorShift_;\nuniform float spotRadius;\nuniform float spotDetails;\nuniform float spotAmplitude;\nuniform float blur;\nuniform float TIME;\nuniform float width;\nuniform float height;\n\n#define pointsNumber 8\n\nfloat WaveletNoise(vec2 p, float z, float k) {\n    float d=0.,s=1.,m=0., a;\n    for(float i=0.; i<4.; i++) {\n        vec2 q = p*s, g=fract(floor(q)*vec2(123.34,233.53));\n    \tg += dot(g, g+23.234);\n\t\ta = fract(g.x*g.y)*1e3;// +z*(mod(g.x+g.y, 2.)-1.); // add vorticity\n        q = (fract(q)-.5)*mat2(cos(a),-sin(a),sin(a),cos(a));\n        d += sin(q.x*10.+z)*smoothstep(.25, .0, dot(q,q))/s;\n        p = p*mat2(.54,-.84, .84, .54)+i;\n        m += 1./s;\n        s *= k; \n    }\n    return d/m + 0.5;\n}\n\nvec3 colorShift = vec3(0., colorShift_, colorShift_ * 2.);\n\nfloat noise(float x, float y) {\n    return WaveletNoise(vec2(x, y), 1., 0.5);\n}\n\nstruct Point\n{\n  float mass;\n  vec3 posX; // for rgb\n  vec3 posY;\n};\n\nvoid main()\n{\n    Point points[pointsNumber];\n    for (int i = 0; i < pointsNumber; i++) {\n        float mass = noise(\n            10. + 400. * float(i),\n            1.+ 800. + (time_ + TIME) * 0.1 + colorShift.b\n          );\n        mass -= 0.5;\n        vec3 cs = colorShift;\n        \n        vec3 posX; // for rgb\n        vec3 posY;\n        posX.r = noise(\n            10. + 100. * float(i),\n            1.+ 600. + (time_ + TIME) * 0.1 + cs.r\n        );\n        posY.r = noise(\n            1. + 400. * float(i),\n            10.+ 200. + (time_ + TIME) * 0.1 + cs.r\n        );\n        posX.g = noise(\n            10. + 100. * float(i),\n            1.+ 600. + (time_ + TIME) * 0.1 + cs.g\n        );\n        posY.g = noise(\n            1. + 400. * float(i),\n            10.+ 200. + (time_ + TIME) * 0.1 + cs.g\n        );\n        posX.b = noise(\n            10. + 100. * float(i),\n            1.+ 600. + (time_ + TIME) * 0.1 + cs.b\n        );\n        posY.b = noise(\n            1. + 400. * float(i),\n            10.+ 200. + (time_ + TIME) * 0.1 + cs.b\n          );\n          \n        points[i] = Point(mass * 100., posX, posY);\n    }\n\n\t\tvec2 res = vec2(width, height);\n    vec2 xy = (gl_FragCoord.xy*2.-res);\n\t\txy/=2.;\n\t\txy /= min(res.x,res.y);\n\t\txy+=.5;\n    \n    vec3 field = vec3(0.);\n    for (int i = 0; i < pointsNumber; i++) {\n        field.r += 0.0001 * points[i].mass / \n            pow(distance(vec2(points[i].posX.r, points[i].posY.r), xy), 2.);\n        field.g += 0.0001 * points[i].mass / \n            pow(distance(vec2(points[i].posX.g, points[i].posY.g), xy), 2.);\n        field.b += 0.0001 * points[i].mass / \n            pow(distance(vec2(points[i].posX.b, points[i].posY.b), xy), 2.);\n    }\n    \n    // vec3 field = vec3(1.);\n    // for (int i = 0; i < pointsNumber; i++) {\n    //     field.r *= points[i].mass * 1. / distance(vec2(points[i].posX.r, points[i].posY.r), xy);\n    //     field.g *= points[i].mass * 1. / distance(vec2(points[i].posX.g, points[i].posY.g), xy);\n    //     field.b *= points[i].mass * 1. / distance(vec2(points[i].posX.b, points[i].posY.b), xy);\n    // }\n    \n    vec2 spotDistort;\n    spotDistort.x = WaveletNoise(xy + vec2(0., 100. + spotSeed), 1., spotDetails);\n    spotDistort.y = WaveletNoise(xy + vec2(100., 0. + spotSeed), 1., spotDetails);\n    spotDistort *= spotAmplitude;\n    float k = mix(1., -1., smoothstep(spotRadius - blur, spotRadius, distance(vec2(0.5), xy + spotDistort)));\n    field = field * k;\n\n    vec3 abberation = vec3(0., .01, .02);\n    vec3 color = vec3(smoothstep(threshold-blur, threshold+blur, vec3(field\n    )));\n    \n    // color = mix(color, 1. - color, smoothstep(spotRadius - blur, spotRadius, distance(vec2(0.5), xy)));\n\n    // if (distance(point1, xy) < 0.01) color = vec3(1., 0., 0.);\n    // if (distance(point2, xy) < 0.01) color = vec3(1., 0., 0.);\n    // if (distance(point3, xy) < 0.01) color = vec3(1., 0., 0.);\n    \n\tgl_FragColor = vec4(color, 1.);\n}\n\n";
 },{}],"../node_modules/regl/dist/regl.js":[function(require,module,exports) {
 var define;
 var global = arguments[3];
@@ -19807,24 +19807,34 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 var file = "Shader.svelte";
 
 function create_fragment(ctx) {
   var canvas;
-  var canvas_width_value;
-  var canvas_height_value;
   var block = {
     c: function create() {
       canvas = (0, _internal.element)("canvas");
       (0, _internal.attr_dev)(canvas, "id", "canvas-main");
-      (0, _internal.attr_dev)(canvas, "width", canvas_width_value = document.documentElement.clientWidth *
-      /*pixelRatio*/
+      (0, _internal.attr_dev)(canvas, "width",
+      /*canvasWidth*/
       ctx[0]);
-      (0, _internal.attr_dev)(canvas, "height", canvas_height_value = document.documentElement.clientHeight *
-      /*pixelRatio*/
-      ctx[0]);
+      (0, _internal.attr_dev)(canvas, "height",
+      /*canvasHeight*/
+      ctx[1]);
       (0, _internal.attr_dev)(canvas, "class", "svelte-zcnnn5");
-      (0, _internal.add_location)(canvas, file, 62, 0, 1007);
+      (0, _internal.add_location)(canvas, file, 73, 0, 1277);
     },
     l: function claim(nodes) {
       throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -19832,7 +19842,26 @@ function create_fragment(ctx) {
     m: function mount(target, anchor) {
       (0, _internal.insert_dev)(target, canvas, anchor);
     },
-    p: _internal.noop,
+    p: function update(ctx, _ref) {
+      var _ref2 = _slicedToArray(_ref, 1),
+          dirty = _ref2[0];
+
+      if (dirty &
+      /*canvasWidth*/
+      1) {
+        (0, _internal.attr_dev)(canvas, "width",
+        /*canvasWidth*/
+        ctx[0]);
+      }
+
+      if (dirty &
+      /*canvasHeight*/
+      2) {
+        (0, _internal.attr_dev)(canvas, "height",
+        /*canvasHeight*/
+        ctx[1]);
+      }
+    },
     i: _internal.noop,
     o: _internal.noop,
     d: function destroy(detaching) {
@@ -19858,6 +19887,7 @@ function instance($$self, $$props, $$invalidate) {
       controlsArray = _$$props$controlsArra === void 0 ? [] : _$$props$controlsArra;
   var pixelRatio = 1; // 1/8 is faster
 
+  var canvasWidth, canvasHeight;
   var controlUniforms = {};
 
   window.onload = function () {
@@ -19890,7 +19920,17 @@ function instance($$self, $$props, $$invalidate) {
         regl.draw();
       });
     });
+    resizeCanvas();
   };
+
+  window.addEventListener("resize", function () {
+    resizeCanvas();
+  });
+
+  function resizeCanvas() {
+    $$invalidate(0, canvasWidth = document.documentElement.clientWidth * pixelRatio);
+    $$invalidate(1, canvasHeight = document.documentElement.clientHeight * pixelRatio);
+  }
 
   var writable_props = ["controlsArray"];
   Object.keys($$props).forEach(function (key) {
@@ -19898,7 +19938,7 @@ function instance($$self, $$props, $$invalidate) {
   });
 
   $$self.$$set = function ($$props) {
-    if ("controlsArray" in $$props) $$invalidate(1, controlsArray = $$props.controlsArray);
+    if ("controlsArray" in $$props) $$invalidate(2, controlsArray = $$props.controlsArray);
   };
 
   $$self.$capture_state = function () {
@@ -19906,13 +19946,18 @@ function instance($$self, $$props, $$invalidate) {
       shaderFrag: _openEye.default,
       controlsArray: controlsArray,
       pixelRatio: pixelRatio,
-      controlUniforms: controlUniforms
+      canvasWidth: canvasWidth,
+      canvasHeight: canvasHeight,
+      controlUniforms: controlUniforms,
+      resizeCanvas: resizeCanvas
     };
   };
 
   $$self.$inject_state = function ($$props) {
-    if ("controlsArray" in $$props) $$invalidate(1, controlsArray = $$props.controlsArray);
-    if ("pixelRatio" in $$props) $$invalidate(0, pixelRatio = $$props.pixelRatio);
+    if ("controlsArray" in $$props) $$invalidate(2, controlsArray = $$props.controlsArray);
+    if ("pixelRatio" in $$props) pixelRatio = $$props.pixelRatio;
+    if ("canvasWidth" in $$props) $$invalidate(0, canvasWidth = $$props.canvasWidth);
+    if ("canvasHeight" in $$props) $$invalidate(1, canvasHeight = $$props.canvasHeight);
     if ("controlUniforms" in $$props) controlUniforms = $$props.controlUniforms;
   };
 
@@ -19923,7 +19968,7 @@ function instance($$self, $$props, $$invalidate) {
   $$self.$$.update = function () {
     if ($$self.$$.dirty &
     /*controlsArray*/
-    2) {
+    4) {
       $: controlsArray.forEach(function (d) {
         controlUniforms[d.id] = function () {
           return d.value;
@@ -19932,7 +19977,7 @@ function instance($$self, $$props, $$invalidate) {
     }
   };
 
-  return [pixelRatio, controlsArray];
+  return [canvasWidth, canvasHeight, controlsArray];
 }
 
 var Shader = /*#__PURE__*/function (_SvelteComponentDev) {
@@ -19947,7 +19992,7 @@ var Shader = /*#__PURE__*/function (_SvelteComponentDev) {
 
     _this = _super.call(this, options);
     (0, _internal.init)(_assertThisInitialized(_this), options, instance, create_fragment, _internal.safe_not_equal, {
-      controlsArray: 1
+      controlsArray: 2
     });
     (0, _internal.dispatch_dev)("SvelteRegisterComponent", {
       component: _assertThisInitialized(_this),
@@ -20203,15 +20248,15 @@ function create_fragment(ctx) {
       button = (0, _internal.element)("button");
       button.textContent = "Download image";
       (0, _internal.attr_dev)(div0, "class", "logo svelte-lg7b2e");
-      (0, _internal.add_location)(div0, file, 93, 2, 1925);
+      (0, _internal.add_location)(div0, file, 93, 2, 1926);
       (0, _internal.attr_dev)(div1, "class", "title svelte-lg7b2e");
-      (0, _internal.add_location)(div1, file, 94, 2, 1952);
+      (0, _internal.add_location)(div1, file, 94, 2, 1953);
       (0, _internal.attr_dev)(div2, "class", "header svelte-lg7b2e");
-      (0, _internal.add_location)(div2, file, 92, 1, 1902);
+      (0, _internal.add_location)(div2, file, 92, 1, 1903);
       (0, _internal.attr_dev)(button, "class", "svelte-lg7b2e");
-      (0, _internal.add_location)(button, file, 101, 1, 2133);
+      (0, _internal.add_location)(button, file, 101, 1, 2134);
       (0, _internal.attr_dev)(div3, "class", "control-panel svelte-lg7b2e");
-      (0, _internal.add_location)(div3, file, 91, 0, 1873);
+      (0, _internal.add_location)(div3, file, 91, 0, 1874);
     },
     l: function claim(nodes) {
       throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -20347,7 +20392,7 @@ function instance($$self, $$props, $$invalidate) {
     name: "Color shift",
     id: "colorShift_",
     value: 0.02,
-    max: 1,
+    max: 0.1,
     step: 0.01,
     min: 0
   }, {
@@ -20759,7 +20804,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51156" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61807" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
