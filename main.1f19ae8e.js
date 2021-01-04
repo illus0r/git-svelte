@@ -19880,7 +19880,7 @@ function instance($$self, $$props, $$invalidate) {
   var _$$props$controlsArra = $$props.controlsArray,
       controlsArray = _$$props$controlsArra === void 0 ? [] : _$$props$controlsArra;
   var shader = $$props.shader;
-  var pixelRatio = 1 / 8; // 1/8 is faster
+  var pixelRatio = 1 / 2; // 1/8 is faster
 
   var canvasWidth, canvasHeight;
   var controlUniforms = {};
@@ -21060,7 +21060,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58272" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59976" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
